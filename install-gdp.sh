@@ -12,20 +12,20 @@ volumes:
 services:
     postgres:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_postgres
+        image: $sourceAddress/gdp_postgres
         container_name: postgres
         volumes:
             - pg_data:/var/lib/postgresql/data
         ports:
             - "5432:5432"
     migrate:
-        image: updates.yieldpoint.com:5000/gdp_migrate
+        image: $sourceAddress/gdp_migrate
         container_name: migrate
         depends_on:
             - postgres
     django:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_django
+        image: $sourceAddress/gdp_django
         container_name: django
         environment:
             KAFKA_SERVER: $kafkaIP
@@ -39,7 +39,7 @@ services:
             - postgres
     ember:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_ember
+        image: $sourceAddress/gdp_ember
         container_name: ember
         environment:
             API_URL: http://$serverIP:8000
@@ -52,7 +52,7 @@ services:
             - django
     influx:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_influx
+        image: $sourceAddress/gdp_influx
         container_name: influx
         volumes:
             - influx_data:/var/lib/influxdb
@@ -62,7 +62,7 @@ services:
             - django
     gdp_backup: #optional container
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_backup
+        image: $sourceAddress/gdp_backup
         container_name: gdp_backup
         environment:
             GDP_BACKUP_HOST: $backupIP
@@ -95,20 +95,20 @@ volumes:
 services:
     postgres:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_postgres
+        image: $sourceAddress/gdp_postgres
         container_name: postgres
         volumes:
             - pg_data:/var/lib/postgresql/data
         ports:
             - "5432:5432"
     migrate:
-        image: updates.yieldpoint.com:5000/gdp_migrate
+        image: $sourceAddress/gdp_migrate
         container_name: migrate
         depends_on:
             - postgres
     django:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_django
+        image: $sourceAddress/gdp_django
         container_name: django
         environment:
             KAFKA_SERVER: $kafkaIP
@@ -122,7 +122,7 @@ services:
             - postgres
     ember:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_ember
+        image: $sourceAddress/gdp_ember
         container_name: ember
         environment:
             API_URL: http://$serverIP:8000
@@ -135,7 +135,7 @@ services:
             - django
     influx:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_influx
+        image: $sourceAddress/gdp_influx
         container_name: influx
         volumes:
             - influx_data:/var/lib/influxdb
@@ -158,7 +158,7 @@ volumes:
 services:
     postgres:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_postgres
+        image: $sourceAddress/gdp_postgres
         container_name: postgres
         volumes:
             - pg_data:/var/lib/postgresql/data
@@ -166,7 +166,7 @@ services:
             - "5432:5432"
     django:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_django
+        image: $sourceAddress/gdp_django
         container_name: django
         environment:
             KAFKA_SERVER: $kafkaIP
@@ -180,7 +180,7 @@ services:
             - postgres
     ember:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_ember
+        image: $sourceAddress/gdp_ember
         container_name: ember
         environment:
             API_URL: http://$serverIP:8000
@@ -193,7 +193,7 @@ services:
             - django
     influx:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_influx
+        image: $sourceAddress/gdp_influx
         container_name: influx
         volumes:
             - influx_data:/var/lib/influxdb
@@ -203,7 +203,7 @@ services:
             - django
     gdp_backup: #optional container
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_backup
+        image: $sourceAddress/gdp_backup
         container_name: gdp_backup
         environment:
             GDP_BACKUP_HOST: $backupIP
@@ -236,7 +236,7 @@ volumes:
 services:
     postgres:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_postgres
+        image: $sourceAddress/gdp_postgres
         container_name: postgres
         volumes:
             - pg_data:/var/lib/postgresql/data
@@ -244,7 +244,7 @@ services:
             - "5432:5432"
     django:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_django
+        image: $sourceAddress/gdp_django
         container_name: django
         environment:
             KAFKA_SERVER: $kafkaIP
@@ -258,7 +258,7 @@ services:
             - postgres
     ember:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_ember
+        image: $sourceAddress/gdp_ember
         container_name: ember
         environment:
             API_URL: http://$serverIP:8000
@@ -271,7 +271,7 @@ services:
             - django
     influx:
         restart: always
-        image: updates.yieldpoint.com:5000/gdp_influx
+        image: $sourceAddress/gdp_influx
         container_name: influx
         volumes:
             - influx_data:/var/lib/influxdb
@@ -322,6 +322,20 @@ else
     kafkaIP="NoServer"
 
     outputMethod="string"
+
+fi
+
+printf "DockerHub or YieldPoint as source for images [d/y]"
+
+read imageSrc
+
+if [ "$imageSrc" = "d" ]; then
+
+    sourceAddress = "yieldpointadmin"
+
+else
+
+    sourceAddress = "updates.yieldpoint.com:5000"
 
 fi
 
@@ -420,8 +434,11 @@ else
     fi
 fi
 
-    echo '{"insecure-registries" : ["0.0.0.0:5000", "updates.yieldpoint.com:5000"]}' > /etc/docker/daemon.json
-    service docker restart
+
+    if [ "$imageSrc" = "y" ]; then
+        echo '{"insecure-registries" : ["0.0.0.0:5000", "updates.yieldpoint.com:5000"]}' > /etc/docker/daemon.json
+        service docker restart
+    fi
     docker-compose up -d
 
     emberContainer=$(echo -n $(echo -n | docker ps -f name=ember | awk '{print $1}') | awk '{print $2}')
