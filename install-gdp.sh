@@ -325,17 +325,17 @@ else
 
 fi
 
-printf "DockerHub or YieldPoint as source for images [d/y]"
+printf "DockerHub or YieldPoint as source for images [d/y]: "
 
 read imageSrc
 
 if [ "$imageSrc" = "d" ]; then
 
-    sourceAddress = "yieldpointadmin"
+    sourceAddress="yieldpointadmin"
 
 else
 
-    sourceAddress = "updates.yieldpoint.com:5000"
+    sourceAddress="updates.yieldpoint.com:5000"
 
 fi
 
