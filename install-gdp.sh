@@ -9,6 +9,7 @@ volumes:
     influx_data:
     django_logs:
     ember_logo:
+    ember_data:
 services:
     postgres:
         restart: always
@@ -48,6 +49,7 @@ services:
             - "80:80"
         volumes:
             - ember_logo:/var/www/html/assets/images/customer_logo
+            - ember_data:/etc/apache2/
         depends_on:
             - django
     influx:
@@ -92,6 +94,7 @@ volumes:
     influx_data:
     django_logs:
     ember_logo:
+    ember_data:
 services:
     postgres:
         restart: always
@@ -131,6 +134,7 @@ services:
             - "80:80"
         volumes:
             - ember_logo:/var/www/html/assets/images/customer_logo
+            - ember_data:/etc/apache2/
         depends_on:
             - django
     influx:
@@ -155,6 +159,7 @@ volumes:
     influx_data:
     django_logs:
     ember_logo:
+    ember_data:
 services:
     postgres:
         restart: always
@@ -189,6 +194,7 @@ services:
             - "80:80"
         volumes:
             - ember_logo:/var/www/html/assets/images/customer_logo
+            - ember_data:/etc/apache2/
         depends_on:
             - django
     influx:
@@ -233,6 +239,7 @@ volumes:
     influx_data:
     django_logs:
     ember_logo:
+    ember_data:
 services:
     postgres:
         restart: always
@@ -267,6 +274,7 @@ services:
             - "80:80"
         volumes:
             - ember_logo:/var/www/html/assets/images/customer_logo
+            - ember_data:/etc/apache2/
         depends_on:
             - django
     influx:
