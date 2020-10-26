@@ -1,0 +1,76 @@
+version: '3'
+volumes:
+    pg_data:
+    influx_data:
+    django_logs:
+    ember_logo:
+    ember_data:
+services:
+    postgres: #SQL server
+        restart: always
+        image: yieldpointadmin/gdp_postgres
+        container_name: postgres
+        volumes:
+            - pg_data:/var/lib/postgresql/data
+        ports:
+            - "5432:5432"
+    migrate: #DB migration script
+        image: yieldpointadmin/gdp_migrate
+        container_name: migrate
+        depends_on:
+            - postgres
+    django: #API
+        restart: always
+        image: yieldpointadmin/gdp_django
+        container_name: django
+        environment:
+            KAFKA_SERVER: NoServer #put a serverIP here if using KAFKA
+            KAFKA_METHOD: string
+        ports:
+            - "8000:8000"
+        volumes:
+            - django_logs:/var/log/apache2
+            - django_logs:/var/log/gdp
+        depends_on:
+            - postgres
+    ember: #Web GUI server
+        restart: always
+        image: yieldpointadmin/gdp_ember
+        container_name: ember
+        environment:
+            API_URL: http://<serverIP>:8000
+            API_CREDENTIALS: "<API-creds>" #default: eWllbGRwb2ludDpZUGZ1dHVyZQ==
+        ports:
+            - "80:80"
+        volumes:
+            - ember_logo:/var/www/html/assets/images/customer_logo #this is the directory where the customer logo gets saved so that it persists between updates
+            - ember_data:/etc/apache2/
+        depends_on:
+            - django
+    influx: #timeseries DB for readings
+        restart: always
+        image: yieldpointadmin/gdp_influx
+        container_name: influx
+        volumes:
+            - influx_data:/var/lib/influxdb
+        ports:
+            - "8086:8086"
+        depends_on:
+            - django
+    gdp_backup: #optional container for creating data backups
+        restart: always
+        image: yieldpointadmin/gdp_backup
+        container_name: gdp_backup
+        environment:
+            GDP_BACKUP_HOST: <backupIP>
+            GDP_BACKUP_USER: yieldpoint
+            GDP_BACKUP_PASSWORD: YPfuture
+            GDP_BACKUP_FORMAT: csv2
+            GDP_BACKUP_IS_INCREMENTIVE: 1
+            GDP_BACKUP_IS_NEW_FOLDER_PER_RUN: 0
+            GDP_BACKUP_DIR: <backup location> #default: /var/lib/gdp/backups/data
+            GDP_BACKUP_STATUS_FILE: /var/lib/gdp/backups/backup_status.csv
+            GDP_BACKUP_CRON_PERIOD: "30 2 * * *"
+        volumes:
+            - /var/lib/gdp/backups:/var/lib/gdp/backups
+            - /var/log/gdp:/var/log/gdp
