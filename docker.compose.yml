@@ -12,6 +12,7 @@ services:
         container_name: postgres
         volumes:
             - pg_data:/var/lib/postgresql/data
+            #- /var/backup/gdp/postgre:/backup
         ports:
             - "5432:5432"
     migrate: #DB migration script
@@ -53,6 +54,7 @@ services:
         container_name: influx
         volumes:
             - influx_data:/var/lib/influxdb
+            #- /var/backup/gdp/influx:/backup
         ports:
             - "8086:8086"
         depends_on:
