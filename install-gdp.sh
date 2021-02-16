@@ -449,6 +449,8 @@ fi
     fi
     docker-compose up -d
 
+    sleep 20
+
     emberContainer=$(echo -n $(echo -n | docker ps -f name=ember | awk '{print $1}') | awk '{print $2}')
     djangoContainer=$(echo -n $(echo -n | docker ps -f name=django | awk '{print $1}') | awk '{print $2}')
 
