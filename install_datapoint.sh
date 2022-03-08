@@ -78,8 +78,9 @@ fi
 
 if [ "$password" = "$password2" ]; then
     if [ "$userName" = "" ]; then
-	userName="yieldpoint"
-	password="YPfuture"
+        userName="yieldpoint"
+        password="YPfuture"
+    fi
 
     stty echo
 
