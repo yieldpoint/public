@@ -60,7 +60,6 @@ printf "Enter Username [Blank for defaults]: "
 read userName
 
 if [ "$userName" != "" ]; then
-
     stty -echo
     printf "Enter Password: "
 
