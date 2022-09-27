@@ -189,7 +189,7 @@ if [ "$password" = "$password2" ]; then
     mkdir /opt/yieldpoint/
     mkdir /opt/yieldpoint/gdp/
 
-    write_reboot()
+    write_reboot
 
     cd /opt/yieldpoint/gdp/
 
