@@ -49,6 +49,8 @@ services:
         container_name: ember
         ports:
             - "80:80"
+        environment:
+            API_URL: $url:8000
         volumes:
             - ember_logo:/var/www/html/assets/images/customer_logo
             - ember_data:/etc/apache2/
