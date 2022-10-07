@@ -35,7 +35,7 @@ services:
             - postgres
     django:
         restart: always
-        image: yieldpointadmin/gdp_django_dev
+        image: yieldpointadmin/gdp_django
         container_name: django
         ports:
             - "8000:8000"
@@ -46,10 +46,12 @@ services:
             - postgres
     ember:
         restart: always
-        image: yieldpointadmin/gdp_ember_dev
+        image: yieldpointadmin/gdp_ember
         container_name: ember
         ports:
             - "80:80"
+        environment:
+		    API_URL: $url:8000
         volumes:
             - ember_logo:/var/www/html/assets/images/customer_logo
             - ember_data:/etc/apache2/
