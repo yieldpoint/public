@@ -3,6 +3,8 @@ write_reboot() {
 cat > "/home/ubuntu/reboot.sh" <<- EndOfFile
 cd /opt/yieldpoint/gdp
 docker-compose down
+docker rmi -f gdp_django_dev
+docker rmi -f gdp_ember_dev
 docker-compose up -d
 EndOfFile
 }
