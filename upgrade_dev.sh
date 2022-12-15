@@ -24,7 +24,7 @@ volumes:
 services:
     postgres:
         restart: always
-        image: yieldpointadmin/gdp_postgres
+        image: yieldpointadmin/gdp_postgres_dev
         container_name: postgres
         volumes:
             - pg_data:/var/lib/postgresql/data
