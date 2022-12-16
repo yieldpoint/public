@@ -85,16 +85,16 @@ EndOfFile
 write_reboot
 
 cd /opt/yieldpoint/gdp
-docker-compose pull migrate_dev
-docker-compose up migrate_dev
+docker-compose pull migrate
+docker-compose up migrate
 docker-compose exec postgres pg_dump --clean -U yieldpoint -d gdp > dump.sql
-docker-compose pull postgres_dev
+docker-compose pull postgres
 docker-compose down
 docker volume rm gdp_pg_data
 docker volume rm gdp_ember_data
-docker-compose up -d postgres_dev
+docker-compose up -d postgres
 sleep 15
-docker-compose up migrate_dev
+docker-compose up migrate
 cp dump.sql /var/lib/docker/volumes/gdp_pg_data/_data/
 docker-compose exec postgres bash -c 'cd /var/lib/postgresql/data ; psql -U yieldpoint -d gdp < dump.sql'
 
