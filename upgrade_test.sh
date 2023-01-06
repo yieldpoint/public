@@ -10,19 +10,15 @@ EndOfFile
 
 write_compose_2() {
 cat > "/opt/yieldpoint/gdp/docker-compose.yml" <<- EndOfFile
-version: '3'
+version: '2'
 
 volumes:
     pg_data:
-    influx_data:
-    django_logs:
-    ember_logo:
-    ember_data:
     alerts_data:
 services:
     postgres:
         restart: always
-        image: yieldpointadmin/gdp_postgres
+        image: yieldpointadmin/gdp_postgres_dev
         container_name: postgres
         volumes:
             - pg_data:/var/lib/postgresql/data
@@ -37,46 +33,63 @@ services:
         restart: always
         image: yieldpointadmin/gdp_django
         container_name: django
+        environment:
+            KAFKA_SERVER: NoServer
+            KAFKA_METHOD: JSON
+            IOT_LOG: "true"
         ports:
             - "8000:8000"
+            - "8443:8443"
         volumes:
-            - django_logs:/var/log/apache2
-            - django_logs:/var/log/gdp
+            - /var/log/gdp/apache2:/var/log/apache2
+            - /var/log/gdp:/var/log/gdp
+            - /opt/yieldpoint/gdp/cert:/var/webcerts
         depends_on:
             - postgres
-    ember:
+    influx:
         restart: always
-        image: yieldpointadmin/gdp_ember
-        container_name: ember
-        ports:
-            - "80:80"
-        environment:
-            API_URL: $url:8000
+        image: updates.yieldpoint.com:5000/gdp_influx
+        container_name: influx
         volumes:
-            - ember_logo:/var/www/html/assets/images/customer_logo
-            - ember_data:/etc/apache2/
-        depends_on:
-            - django
+            - /var/lib/gdp/influx:/var/lib/influxdb
+        ports:
+            - "8086:8086"
+#        depends_on:
+#            - django
     alerts:
         restart: always
         image: yieldpointadmin/gdp_alerts
         container_name: alerts
         environment:
-            SERVER_URL: $url
+            SERVER_URL: "http://testtwo.yieldpoint.com"
         volumes:
-            - alerts_data:/app/token/
-        depends_on:
-            - django
-    influx:
-        restart: always
-        image: yieldpointadmin/gdp_influx
-        container_name: influx
-        volumes:
-            - influx_data:/var/lib/influxdb
+            - alerts_data:/app/token
         ports:
-            - "8086:8086"
+            - "587:587"
+            - "8080:8080"
         depends_on:
-            - django
+            - influx
+    gdp_backup: #optional container
+        restart: always
+        image: updates.yieldpoint.com:5000/gdp_backup
+        container_name: gdp_backup
+        environment:
+            GDP_BACKUP_HOST: 18.118.101.31
+            GDP_BACKUP_USER: yieldpoint
+            GDP_BACKUP_PASSWORD: YPfuture
+
+            GDP_BACKUP_FORMAT: csv2
+            GDP_BACKUP_IS_INCREMENTIVE: 1
+            GDP_BACKUP_IS_NEW_FOLDER_PER_RUN: 0
+
+            GDP_BACKUP_DIR: /var/lib/gdp/backups/data
+            GDP_BACKUP_STATUS_FILE: /var/lib/gdp/backups/backup_status.csv
+
+            GDP_BACKUP_CRON_PERIOD: "30 2 * * *"
+        volumes:
+            - /var/lib/gdp/backups:/var/lib/gdp/backups
+            - /var/log/gdp:/var/log/gdp
+
 EndOfFile
 }
 
@@ -93,7 +106,6 @@ docker volume rm gdp_ember_data
 docker-compose up -d postgres
 sleep 15
 docker-compose up migrate
-cp dump.sql dump.sql_backup
 cp dump.sql /var/lib/docker/volumes/gdp_pg_data/_data/
 docker-compose exec postgres bash -c 'cd /var/lib/postgresql/data ; psql -U yieldpoint -d gdp < dump.sql'
 

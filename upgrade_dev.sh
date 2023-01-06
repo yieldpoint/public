@@ -3,8 +3,8 @@ write_reboot() {
 cat > "/home/ubuntu/reboot.sh" <<- EndOfFile
 cd /opt/yieldpoint/gdp
 docker-compose down
-docker rmi -f gdp_django_dev
-docker rmi -f gdp_ember_dev
+# docker rmi -f gdp_django_dev
+# docker rmi -f gdp_ember_dev
 docker-compose up -d
 EndOfFile
 }
@@ -95,6 +95,7 @@ docker volume rm gdp_ember_data
 docker-compose up -d postgres
 sleep 15
 docker-compose up migrate
+cp ./dump.sql ./dump.sql_backup
 cp dump.sql /var/lib/docker/volumes/gdp_pg_data/_data/
 docker-compose exec postgres bash -c 'cd /var/lib/postgresql/data ; psql -U yieldpoint -d gdp < dump.sql'
 
