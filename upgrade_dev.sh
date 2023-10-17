@@ -31,10 +31,12 @@ services:
         ports:
             - "5432:5432"
     migrate:
-        image: yieldpointadmin/gdp_migrate_dev
+        image: yieldpointadmin/gdp_migrate
         container_name: migrate
         depends_on:
             - postgres
+        volumes:
+            - /home/ubuntu/migration_backups:/home/ubuntu/migration_backups
     django:
         restart: always
         image: yieldpointadmin/gdp_django_dev

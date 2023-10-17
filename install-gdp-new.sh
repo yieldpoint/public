@@ -18,6 +18,7 @@ volumes:
     ember_logo:
     ember_data:
     alerts_data:
+
 services:
     postgres:
         restart: always
@@ -32,6 +33,8 @@ services:
         container_name: migrate
         depends_on:
             - postgres
+        volumes:
+            - /home/ubuntu/migration_backups:/home/ubuntu/migration_backups
     django:
         restart: always
         image: yieldpointadmin/gdp_django
