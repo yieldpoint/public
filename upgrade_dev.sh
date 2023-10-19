@@ -37,7 +37,7 @@ services:
         ports:
             - "5432:5432"
     migrate:
-        image: yieldpointadmin/gdp_migrate
+        image: yieldpointadmin/gdp_migrate_dev
         container_name: migrate
         depends_on:
             - postgres
