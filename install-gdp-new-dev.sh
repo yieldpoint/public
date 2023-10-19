@@ -194,7 +194,7 @@ if [ "$password" = "$password2" ]; then
     chmod +x /usr/local/bin/docker-compose
     mkdir /opt/yieldpoint/
     mkdir /opt/yieldpoint/gdp/
-
+    mkdir /home/ubuntu/migration_backups
     write_reboot
 
     cd /opt/yieldpoint/gdp/

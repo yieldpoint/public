@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+
+# Check if directory exists, if not create it
+if [ ! -d "/home/ubuntu/migration_backups" ]; then
+  mkdir -p /home/ubuntu/migration_backups
+fi
+
 write_reboot() {
 cat > "/home/ubuntu/reboot.sh" <<- EndOfFile
 cd /opt/yieldpoint/gdp
