@@ -95,30 +95,6 @@ services:
             - django
 EndOfFile
 }
-mv docker-compose.yml docker-compose.yml.bak
-write_reboot
-write_compose_2
-
-if [ $? -eq 0 ]; then
-  echo "write_compose_2 was successful"
-else
-  echo "write_compose_2 failed"
-  exit 1
-fi
-sleep 2
-docker-compose pull migrate
-docker-compose up migrate
-docker-compose exec postgres pg_dump --clean -U yieldpoint -d gdp > dump.sql
-docker-compose pull postgres
-docker-compose down
-docker volume rm gdp_pg_data
-docker volume rm gdp_ember_data
-docker-compose up -d postgres
-sleep 15
-docker-compose up migrate
-cp ./dump.sql ./dump.sql_backup
-cp dump.sql /var/lib/docker/volumes/gdp_pg_data/_data/
-docker-compose exec postgres bash -c 'cd /var/lib/postgresql/data ; psql -U yieldpoint -d gdp < dump.sql'
 
 printf "Enter Server URL (eg. http://test.yieldpoint.com): "
 
@@ -144,6 +120,33 @@ else
     password="default"
     password2="default"
 fi
+
+
+mv docker-compose.yml docker-compose.yml.bak
+write_reboot
+write_compose_2
+
+
+if [ $? -eq 0 ]; then
+  echo "write_compose_2 was successful"
+else
+  echo "write_compose_2 failed"
+  exit 1
+fi
+sleep 2
+docker-compose pull migrate
+docker-compose up migrate
+docker-compose exec postgres pg_dump --clean -U yieldpoint -d gdp > dump.sql
+docker-compose pull postgres
+docker-compose down
+docker volume rm gdp_pg_data
+docker volume rm gdp_ember_data
+docker-compose up -d postgres
+sleep 15
+docker-compose up migrate
+cp ./dump.sql ./dump.sql_backup
+cp dump.sql /var/lib/docker/volumes/gdp_pg_data/_data/
+docker-compose exec postgres bash -c 'cd /var/lib/postgresql/data ; psql -U yieldpoint -d gdp < dump.sql'
 
 if [ "$password" = "$password2" ]; then
     if [ "$userName" = "" ]; then
