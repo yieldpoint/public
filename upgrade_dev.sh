@@ -91,6 +91,7 @@ EndOfFile
 }
 
 write_reboot
+write_compose_2
 
 cd /opt/yieldpoint/gdp
 docker-compose pull migrate
@@ -144,8 +145,6 @@ if [ "$password" = "$password2" ]; then
     fi
 
     stty echo
-
-    write_compose_2
 
     docker-compose up -d
 
