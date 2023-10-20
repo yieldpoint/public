@@ -5,6 +5,12 @@ if [ ! -d "/home/ubuntu/migration_backups" ]; then
   mkdir -p /home/ubuntu/migration_backups
 fi
 
+# Check if directory exists, if not create it
+if [ ! -d "/opt/yieldpoint/gdp" ]; then
+  mkdir -p /opt/yieldpoint/gdp
+fi
+cd /opt/yieldpoint/gdp
+
 write_reboot() {
 cat > "/home/ubuntu/reboot.sh" <<- EndOfFile
 cd /opt/yieldpoint/gdp
@@ -92,8 +98,14 @@ EndOfFile
 
 write_reboot
 write_compose_2
+write_compose_2
+if [ $? -eq 0 ]; then
+  echo "write_compose_2 was successful"
+else
+  echo "write_compose_2 failed"
+  exit 1
+fi
 
-cd /opt/yieldpoint/gdp
 docker-compose pull migrate
 docker-compose up migrate
 docker-compose exec postgres pg_dump --clean -U yieldpoint -d gdp > dump.sql
@@ -144,7 +156,7 @@ if [ "$password" = "$password2" ]; then
         credentials=$(echo -n "$userName:$password" | base64)
     fi
 
-    stty echo
+    stty echo  
 
     docker-compose up -d
 
