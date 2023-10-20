@@ -105,7 +105,7 @@ else
   echo "write_compose_2 failed"
   exit 1
 fi
-
+sleep 30
 docker-compose pull migrate
 docker-compose up migrate
 docker-compose exec postgres pg_dump --clean -U yieldpoint -d gdp > dump.sql
