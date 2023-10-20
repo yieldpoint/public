@@ -54,8 +54,8 @@ services:
         ports:
             - "8000:8000"
         volumes:
-            - django_logs:/var/log/apache2
-            - django_logs:/var/log/gdp
+            - /var/log/gdp:/var/log/apache2
+            - /var/log/gdp:/var/log/gdp
         depends_on:
             - postgres
     ember:

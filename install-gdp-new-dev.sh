@@ -1,4 +1,15 @@
 #!/usr/bin/env bash
+
+# Check if directory exists, if not create it
+if [ ! -d "/home/ubuntu/migration_backups" ]; then
+  mkdir -p /home/ubuntu/migration_backups
+fi
+
+# Check if directory exists, if not create it
+if [ ! -d "/opt/yieldpoint/gdp" ]; then
+  mkdir -p /opt/yieldpoint/gdp
+fi
+
 write_reboot() {
 cat > "/home/ubuntu/reboot.sh" <<- EndOfFile
 cd /opt/yieldpoint/gdp
@@ -28,7 +39,7 @@ services:
         ports:
             - "5432:5432"
     migrate:
-        image: yieldpointadmin/gdp_migrate
+        image: yieldpointadmin/gdp_migrate_dev
         container_name: migrate
         depends_on:
             - postgres
@@ -41,8 +52,8 @@ services:
         ports:
             - "8000:8000"
         volumes:
-            - django_logs:/var/log/apache2
-            - django_logs:/var/log/gdp
+            - /var/log/gdp:/var/log/apache2
+            - /var/log/gdp:/var/log/gdp
         depends_on:
             - postgres
     ember:
@@ -108,8 +119,8 @@ services:
         ports:
             - "8000:8000"
         volumes:
-            - django_logs:/var/log/apache2
-            - django_logs:/var/log/gdp
+            - /var/log/gdp:/var/log/apache2
+            - /var/log/gdp:/var/log/gdp
         depends_on:
             - postgres
     ember:
@@ -192,9 +203,7 @@ if [ "$password" = "$password2" ]; then
     apt install -y docker-ce
     curl -L https://github.com/docker/compose/releases/download/1.17.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     chmod +x /usr/local/bin/docker-compose
-    mkdir /opt/yieldpoint/
-    mkdir /opt/yieldpoint/gdp/
-    mkdir /home/ubuntu/migration_backups
+
     write_reboot
 
     cd /opt/yieldpoint/gdp/
@@ -215,7 +224,6 @@ if [ "$password" = "$password2" ]; then
     
     docker-compose down
     docker-compose up -d
-
 
     printf "\n"
     printf "You should now have access to the GDP.\n"
