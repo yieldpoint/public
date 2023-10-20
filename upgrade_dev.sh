@@ -95,10 +95,10 @@ services:
             - django
 EndOfFile
 }
-
+mv docker-compose.yml docker-compose.yml.bak
 write_reboot
 write_compose_2
-write_compose_2
+
 if [ $? -eq 0 ]; then
   echo "write_compose_2 was successful"
 else
@@ -119,8 +119,6 @@ docker-compose up migrate
 cp ./dump.sql ./dump.sql_backup
 cp dump.sql /var/lib/docker/volumes/gdp_pg_data/_data/
 docker-compose exec postgres bash -c 'cd /var/lib/postgresql/data ; psql -U yieldpoint -d gdp < dump.sql'
-
-mv docker-compose.yml docker-compose.yml.bak
 
 printf "Enter Server URL (eg. http://test.yieldpoint.com): "
 
